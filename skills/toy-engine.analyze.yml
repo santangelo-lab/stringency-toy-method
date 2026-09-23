@@ -1,0 +1,38 @@
+# Source of the analysis skill stringency-analyze-toy-compare (design 10.4, roadmap Track 1d).
+# Rendered by the engine repository's integrations/claude-science/render_skill.py to
+# skills/stringency-analyze-toy-compare/SKILL.md; field notes in README.md beside this file.
+# The first analysis-skill instance, on the all-engine toy pipeline, before any real pipeline.
+pipeline: toy-engine
+name: toy-compare
+method: /home/jrrose5/mytools/stringency/stringency-toy-method@v0.1.4
+plugin: stringency-toy
+question: compare_groups
+title: Compare groups in a toy table
+summary: Compares groups of values in a small table (the stringency toy analysis) and labels each group
+phrasings:
+  positive:
+    - wants to compare groups of values in a small table, or asks which group is higher or how two groups differ
+    - mentions the toy data, the groups table, groups A, B or C, or a toy comparison
+    - asks to run, try, test, or demonstrate the toy analysis, the toy pipeline, or an analysis under stringency on toy data
+    - describes a table with one row per measurement, a group column and a unit column, and wants the groups compared
+  negative:
+    - single-cell, spatial, Xenium, bulk RNA-seq, or any sequencing data (those have their own analysis skills)
+    - a question about how a finished analysis was done, or about the engine, tickets, holds, or run.db by name (the operator skill)
+    - drafting the declaration files alone without running the analysis (the declare skill)
+steps:
+  01_filter: Filter low-value rows
+  02_summarize: Summarize each group
+  03_label: Label the groups
+  04_compare: Compare the groups
+  05_report: Write the report
+deliverables:
+  comparison_table: one row per pair of groups with the number of units in each, their mean values, the difference, and the p-value before and after correction
+  group_labels: the label each group received from three independent replicates, one of abundant, sparse, variable, uniform, or indeterminate, and whether they agreed
+  report: a short report naming the comparison in words, every number a cell of the comparison table
+asks:
+  - Which file holds the values, one row per measurement? A path on the host, or a file you have shared, is enough.
+  - In that file, which column names the group, and which column names the replicate unit (the thing that counts as an independent repeat)?
+  - Which two groups do you want compared? If you name more than two, say whether you want every pair or one comparison.
+  - Do you want the report as well as the comparison table and the group labels?
+defaults_to_say:
+  min_n_per_group: the smallest number of replicate units a group needs for the comparison

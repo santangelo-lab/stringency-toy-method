@@ -1,0 +1,32 @@
+# What to show a person for a toy-engine run (design 14.4). Rendered by `stringency present`
+# after delivery and at a hold; the method states here what its results mean to a person. Nothing
+# in this file changes what runs.
+skill: 1
+pipeline: toy-engine
+after_delivery:
+  - title: "Groups compared: units per group, mean value, difference, and adjusted p-value per contrast"
+    source: 04_compare.comparison_table.tsv
+    kind: table
+    columns: [contrast, n_a, n_b, mean_a, mean_b, diff, p_value, p_adj]
+  - title: "Label given to each group (consensus of three independent replicates)"
+    source: 05_report.group_labels.json
+    kind: json_table
+    path: labels
+  - title: "Report"
+    source: 05_report.report.md
+    kind: text
+never_show: [run ids, hashes, checksums, nonces, replicate request files, container command lines]
+hold_view:
+  - predicate: judg.confidence_consistent
+    source: 03_label/consensus.json
+    kind: json_table
+    path: items
+    columns: [item_id, label, source, replicate_labels, replicate_confidence]
+  - predicate: judg.confidence_consistent
+    source: 03_label/judgments.jsonl
+    kind: jsonl
+    columns: [replicate, item_id, label, confidence, abstain]
+  - predicate: judg.numeric_claims_match
+    source: 03_label/judgments.jsonl
+    kind: jsonl
+    columns: [replicate, item_id, label, confidence, rationale]

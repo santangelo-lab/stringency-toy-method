@@ -1,0 +1,40 @@
+# Routing test set for the description of stringency-analyze-toy-compare (UX note section 4).
+# Each phrasing is what a person might type as a first message; `expect` is which skill should
+# load: analyze (this skill), declare-only (stringency-declare alone), operator-only
+# (stringency-operator alone), none. Run by hand in a Claude Science session after each revision
+# of the description until a skill evaluation tool is confirmed; results in
+# toy-engine.phrasings.results.md.
+phrasings: 1
+skill: stringency-analyze-toy-compare
+positive:
+  - {text: "Can you compare the groups in my toy table?", expect: analyze}
+  - {text: "I have a csv with groups A, B and C and a value per row. Which group is higher?", expect: analyze}
+  - {text: "Run the toy analysis on groups.csv please", expect: analyze}
+  - {text: "Let's try the toy pipeline on the fixture data", expect: analyze}
+  - {text: "Is group A different from group B in this table?", expect: analyze}
+  - {text: "I want to demonstrate a stringency analysis on the toy data", expect: analyze}
+  - {text: "Here is a small table of measurements, one row each, with a group and a unit column. Compare the groups.", expect: analyze}
+  - {text: "How do A and B differ in the toy comparison?", expect: analyze}
+  - {text: "Test the toy analysis for me, the data is under /data/lab/projects", expect: analyze}
+  - {text: "compare A vs B in groups.csv", expect: analyze}
+  - {text: "I'd like the toy comparison run with a report at the end", expect: analyze}
+  - {text: "Label the groups in this table and tell me which is bigger", expect: analyze}
+  - {text: "Do the toy compare thing on my table", expect: analyze}
+  - {text: "Analyze this groups table: does B have lower values than A?", expect: analyze}
+  - {text: "Please compare three groups of measurements in a plain csv; the unit is the replicate", expect: analyze}
+  - {text: "Run an analysis under stringency on toy data so I can see how it works", expect: analyze}
+  - {text: "I have values per unit per group and want to know if the groups differ", expect: analyze}
+  - {text: "Can we run the toy engine pipeline on the groups file?", expect: analyze}
+  - {text: "What changed between group A and group C in my toy table?", expect: analyze}
+  - {text: "New toy comparison: same data as last time, compare B and C this time", expect: analyze}
+negative:
+  - {text: "Run the QC pipeline on the Xenium region 0076581 Spleen", expect: none}
+  - {text: "Compare treated versus control in my bulk RNA-seq counts", expect: none}
+  - {text: "Cluster the single-cell object and annotate the cell types", expect: none}
+  - {text: "How was the comparison in the delivered toy-compare project done? Show me the methods.", expect: operator-only}
+  - {text: "There is an open hold in /data/lab/projects/.../toy-compare; show me the review packet", expect: operator-only}
+  - {text: "stringency run --json stopped with exit 21 in my project; what is the ticket?", expect: operator-only}
+  - {text: "Draft the three declaration files for my experiment from this manifest, but do not run anything yet", expect: declare-only}
+  - {text: "Write inputs.yml, design.yml and objective.yml for the groups table and check them", expect: declare-only}
+  - {text: "What does run.db contain and which tables record reviews?", expect: operator-only}
+  - {text: "Plot the values per group from groups.csv as a boxplot", expect: none}
