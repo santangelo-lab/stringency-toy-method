@@ -6,7 +6,7 @@ license: MIT
 
 # Compare groups in a toy table
 
-Rendered by `render_skill.py` from `skills/toy-engine.analyze.yml` in the method repository at `/home/jrrose5/mytools/stringency/stringency-toy-method@v0.1.4`; do
+Rendered by `render_skill.py` from `skills/toy-engine.analyze.yml` in the method repository at `/home/jrrose5/mytools/stringency/stringency-toy-method@v0.1.5`; do
 not edit this file, edit the source and render again. Pipeline `toy-engine`, plugin
 `stringency-toy`, question `compare_groups`.
 
@@ -85,7 +85,7 @@ stop; that is a gap in the method, not something to approximate.
 
 Draft the three declaration files by the `stringency-declare` skill's rules (every value has a
 source: the manifest, the sample names, the person's sentences, or a plugin default) and check
-them with `declare --check` against method `/home/jrrose5/mytools/stringency/stringency-toy-method@v0.1.4`, pipeline `toy-engine`. Exit 15
+them with `declare --check` against method `/home/jrrose5/mytools/stringency/stringency-toy-method@v0.1.5`, pipeline `toy-engine`. Exit 15
 names what to fix; fix it only when the fix has a source, otherwise ask.
 
 When the check passes, show the echo-back in full, then say: "This is the engine's reading of
@@ -116,6 +116,19 @@ Between calls, say nothing about the state of the run. Do not say "still running
 estimate time, do not describe a step as done, skipped, or satisfied unless `completed_steps` or
 `plain` says so.
 
+### Decisions the operator proposes
+
+Some steps take a parameter nobody can set before the run has produced the evidence for it: the
+step's default is `unset` or a sign-off is required, and the operator proposes the value. Run
+`stringency run --until <the step before>` so the evidence exists, read the evidence the method
+names (`present` shows it; never compute from it), then `stringency propose <step> --set
+<parameter>=<value> --reason "<why, citing the evidence by table and row>"`. The proposal opens a
+hold the person answers by the hold protocol: your reason is what they read, so it must be one
+they could check against the tables. You never proceed on your own proposal, never propose a
+value the evidence does not name, and never change a parameter nobody asked about. Then `run`
+again. This text is section 9 of the `stringency-operator` skill; the two must not drift.
+
+
 ## 5. Holds
 
 When the engine stops with a hold, the operator reads `stringency review --hold <id> --json` (or
@@ -123,7 +136,8 @@ the packet file the message names) and says, in this order and nothing else:
 
 1. Where and what: "The analysis paused at {step title}. The engine is asking: {for a flag, 'is
    this acceptable: ' plus the predicate's reason verbatim; for a confirm, 'does this reading of
-   your experiment match'; for an item hold, 'which of these calls for {item} should stand'}."
+   your experiment match'; for an item hold, 'which of these calls for {item} should stand'; for a
+   sign-off, 'which label {item} takes: {the packet's choices}'}."
 2. The record: the packet's reason and evidence lines verbatim under "What the engine recorded";
    for item holds, each replicate's call, confidence, and rationale verbatim. No summary, no
    reordering.
@@ -134,26 +148,32 @@ the packet file the message names) and says, in this order and nothing else:
 
 Then wait. Accept only a reply containing one listed verdict word and a reason. "Ok", "fine", "go
 ahead" get: "To record this I need one of {verdicts} and your reason in your own words." No verdict
-is inferred from tone. Item holds: accept needs the replicate number the person names; override
-passes the person's label through unchanged.
+is inferred from tone. Item holds: the person may name a label instead of a verdict; record it
+with `--choose {label}` (the engine records accept when a replicate called it, else override), and
+on a sign-off a reason is required. Otherwise accept needs the replicate number the person names
+and override passes the person's label through unchanged.
 
 Then one command: `stringency review --verdict {v} --hold {id} --reason "{their words}"
-[--replicate n | --correction '{"label": ...}'] --attest`, with `STRINGENCY_SESSION_REF` set.
+[--replicate n | --correction '{"label": ...}'] --attest`, or `stringency review --choose {label}
+--hold {id} --reason "{their words}" --attest`, with `STRINGENCY_SESSION_REF` set.
 Report the engine's reply in one sentence. On exit 16 (strict profile refuses relayed review),
-name the two routes the engine allows: the person's own project page (started from their laptop
-with `scripts/review-page.sh <ssh-alias>`, which serves the hold with its form as them), or
-`stringency review --hold {id}` at a terminal in the project directory. Call `run` again only
-after a verdict was recorded. The operator never runs `review` without a verdict word and a
-reason from the conversation, and never starts `review --serve`.
+name the two routes the engine allows: the review page, or `stringency review --hold {id}` at a
+terminal in the project directory. Call `run` again only after a verdict was recorded. The operator
+never runs `review` without a verdict word and a reason from the conversation, and never starts
+`review --serve`.
 
 This protocol is the text of section 6 of the `stringency-operator` skill; the two must not
 drift. Before the ask, when the method attaches tables to the predicate that fired, run
-`stringency present --hold <id>` and relay it, as the operator skill's section 7 says. The
-project page is a route only when it is available on this host (`scripts/review-page.sh` from
-the person's laptop, or a standing read-only instance for reading); until then every hold is
-answered here and recorded as relayed. When a page is available, point the person at their
-project's page for progress and results rather than relaying `STATUS.md`; the engine notifies
-them by their own `notify.yml` when a hold opens or a run completes, delivers or fails.
+`stringency present --hold <id>` and relay it, as the operator skill's section 7 says. The review
+page is a route only when it is available on this host; until then every hold is answered here
+and recorded as relayed. At every hold, without being asked, start the `wait_command` the held
+payload names (`stringency wait --hold <id> --timeout 86400 --json`) in the background, so an
+answer given at a terminal or on a console reaches you; when it returns, call `run` again. When a
+console is configured (the person says so, the held payload's `review_page` is set, or `page_url`
+is set in `~/.config/stringency/notify.yml`), the operator skill's console mode applies instead: one
+sentence naming the hold and its console link, `stringency wait --hold <id> --json` in the
+background, and the person's reason read as the instruction when it returns; the packet and the
+tables are on the console, not here.
 
 ## 6. Deliver and report
 
@@ -195,15 +215,17 @@ mechanics were never hidden from the trace; they were kept out of the chat until
 The `stringency-operator` skill is the authority on every line below; on conflict it wins.
 
 - Engine: `stringency` on the compute host, `bin` directory on PATH via a login shell; identity
-  variables exported in every command string. `review --attest` is refused (exit 16) without
-  `STRINGENCY_SESSION_REF`.
+  variables exported in every command string (in Claude Code the engine reads the version and
+  session id itself). `review --attest` is refused (exit 16) without a session reference. A
+  `wait` only reads: never stop one with `pkill -f`.
 - Declare: `stringency plugins list --json` once; `declare --check <parent>/declarations
-  --method /home/jrrose5/mytools/stringency/stringency-toy-method@v0.1.4 --pipeline toy-engine`; `init <project> --method /home/jrrose5/mytools/stringency/stringency-toy-method@v0.1.4
+  --method /home/jrrose5/mytools/stringency/stringency-toy-method@v0.1.5 --pipeline toy-engine`; `init <project> --method /home/jrrose5/mytools/stringency/stringency-toy-method@v0.1.5
   --pipeline toy-engine --objective ... --design ... --inputs ... --drafted-by agent --brief
   <parent>/brief.md --owner ... --reviewer ...` exits 10 with the confirm hold.
 - Loop: `run --json`; 21 means a ticket (`next --json`, run `operator_line` once as printed,
   `run --json` again); 20 means a judgment dispatch (one fresh delegate per request file, then
-  `run --responses - --json` with the assembled document); 10 means a hold (section 5); 0 with
+  `run --responses - --json --check` first, which files nothing, then `run --responses - --json`
+  with the assembled document); 10 means a hold (section 5); 0 with
   `kind: completed` means done. Pass `--deliver` on the `run` calls after the last dispatch or
   ticket. Exit codes: 0 ok; 10 held; 11 blocked before execution; 12 rejected after; 13 failed;
   14 dirty tree; 15 configuration error; 16 refused; 20 judgment dispatched; 21 ticket issued.
