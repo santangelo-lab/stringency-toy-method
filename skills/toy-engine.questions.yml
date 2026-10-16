@@ -1,0 +1,25 @@
+# Routing test set for open mode on the toy (spec/method-skills.md section 5): questions a person
+# might ask after toy-engine delivers, with the route the operator should take: tool:<name>,
+# exec (code written in the session), cannot (a judgment, or not in the delivery), fork (a change
+# to the pipeline run), explain (how the analysis was done, from the reports). Run by hand in a
+# session; results in toy-engine.questions.results.md.
+questions: 1
+skill: stringency-analyze-toy-compare
+positive:
+  - {text: "Which group is higher, A or B?", expect: "tool:compare-groups"}
+  - {text: "Does C differ from A?", expect: "tool:compare-groups"}
+  - {text: "Run the comparison again with bonferroni", expect: "tool:compare-groups"}
+  - {text: "Compare the groups treating each row as a replicate", expect: "tool:compare-groups"}
+  - {text: "Show me the differences as a plot", expect: "tool:plot-groups"}
+  - {text: "Draw the comparison", expect: "tool:plot-groups"}
+  - {text: "How many rows does each group have after filtering?", expect: exec}
+  - {text: "What is the mean value per unit?", expect: exec}
+  - {text: "Which unit has the largest value?", expect: exec}
+  - {text: "List the rows of group B", expect: exec}
+negative:
+  - {text: "Is this result good enough to report?", expect: cannot}
+  - {text: "Should we drop group C?", expect: cannot}
+  - {text: "What were the raw values before filtering?", expect: cannot}
+  - {text: "Rerun the whole analysis keeping rows below 10", expect: fork}
+  - {text: "How were the p-values corrected?", expect: explain}
+  - {text: "Which steps ran and what was checked?", expect: explain}

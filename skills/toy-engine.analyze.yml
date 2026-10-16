@@ -4,7 +4,7 @@
 # The first analysis-skill instance, on the all-engine toy pipeline, before any real pipeline.
 pipeline: toy-engine
 name: toy-compare
-method: /home/jrrose5/mytools/stringency/stringency-toy-method@v0.1.5
+method: /home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc1
 plugin: stringency-toy
 question: compare_groups
 title: Compare groups in a toy table
@@ -26,6 +26,7 @@ steps:
   04_compare: Compare the groups
   05_report: Write the report
 deliverables:
+  object: the filtered table itself, one row per measurement kept, the dataset later questions are asked of
   comparison_table: one row per pair of groups with the number of units in each, their mean values, the difference, and the p-value before and after correction
   group_labels: the label each group received from three independent replicates, one of abundant, sparse, variable, uniform, or indeterminate, and whether they agreed
   report: a short report naming the comparison in words, every number a cell of the comparison table
@@ -33,6 +34,31 @@ asks:
   - Which file holds the values, one row per measurement? A path on the host, or a file you have shared, is enough.
   - In that file, which column names the group, and which column names the replicate unit (the thing that counts as an independent repeat)?
   - Which two groups do you want compared? If you name more than two, say whether you want every pair or one comparison.
-  - Do you want the report as well as the comparison table and the group labels?
+  - Do you want the report as well as the filtered table, the comparison table and the group labels?
 defaults_to_say:
   min_n_per_group: the smallest number of replicate units a group needs for the comparison
+# open mode (engine 0.2.22): the tools this method ships for questions after delivery, in the
+# method's words, and the paths the operator proposes before the switch (spec/method-skills.md 3)
+tools:
+  - module: compare-groups
+    title: Compare the groups
+    use_when: the person asks which group is higher, whether two groups differ, or wants the comparison again with another correction or replicate unit
+    asks:
+      replicate_unit: Should each unit count as one replicate (the usual choice), or each row?
+      correction: Which multiple-testing correction do you want, bh, bonferroni, or none?
+  - module: plot-groups
+    title: Draw the differences
+    use_when: the person wants to see the differences between the groups as a figure
+open:
+  intro: The toy method answers questions of the filtered table and of the comparison built on it.
+  paths:
+    - answers: which groups differ and by how much, with a chosen correction
+      tool: compare-groups
+      needs: [object]
+      asks: which correction and which replicate unit
+    - answers: a figure of the differences between the groups
+      tool: plot-groups
+      needs: [comparison_table]
+    - answers: anything else about the filtered rows, such as counts or means per group
+      code: true
+      needs: [object]

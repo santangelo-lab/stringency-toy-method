@@ -1,0 +1,15 @@
+# What a person sees of an answer in open mode (engine 0.2.22; open_mode_plan.md 2.7). Read by
+# `stringency present --answer`: per tool, the output to show beside the answer, its columns, at
+# most `head` rows. Nothing here changes what runs.
+skill: 1
+answer_view:
+  - tool: compare-groups
+    title: "The comparison this answer rests on: units per group, means, difference, adjusted p"
+    output: comparison_table
+    kind: table
+    columns: [contrast, n_a, n_b, mean_a, mean_b, diff, p_adj]
+    head: 20
+  - tool: plot-groups
+    title: "The differences between the groups"
+    output: figure
+    kind: figure
