@@ -6,7 +6,7 @@ license: MIT
 
 # Compare groups in a toy table
 
-Rendered by `render_skill.py` from `skills/toy-engine.analyze.yml` in the method repository at `/home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc2`; do
+Rendered by `render_skill.py` from `skills/toy-engine.analyze.yml` in the method repository at `/home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc3`; do
 not edit this file, edit the source and render again. Pipeline `toy-engine`, plugin
 `stringency-toy`, question `compare_groups`.
 
@@ -36,8 +36,9 @@ Each rule is testable against the transcript.
    a step as done, skipped, or satisfied otherwise.
 6. On a hold, follow the protocol in section 5 exactly. Never choose. Never look for another way
    past the stop.
-7. On completion, deliver, then report in three parts from `summary.md`: what was analyzed, what
-   was decided, what was delivered. Offer `methods.md` and the coverage report; do not paste.
+7. On completion, deliver, then show the results: `stringency present` relayed whole, at most
+   three sentences from `summary.md` on what was decided, and the saved files by name. Offer
+   `summary.md`, `methods.md` and the coverage report; do not paste them.
 8. Interpretation begins "This paragraph is my reading of the delivered tables, not an engine
    output" and cites table and row for every value. Saved as an artifact if asked; never written
    into the project directory.
@@ -85,7 +86,7 @@ stop; that is a gap in the method, not something to approximate.
 
 Draft the three declaration files by the `stringency-declare` skill's rules (every value has a
 source: the manifest, the sample names, the person's sentences, or a plugin default) and check
-them with `declare --check` against method `/home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc2`, pipeline `toy-engine`. Exit 15
+them with `declare --check` against method `/home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc3`, pipeline `toy-engine`. Exit 15
 names what to fix; fix it only when the fix has a source, otherwise ask.
 
 When the check passes, show the echo-back in full, then say: "This is the engine's reading of
@@ -186,9 +187,10 @@ For this pipeline the method shows:
 - Label given to each group (consensus of three independent replicates)
 - Report
 
-Then read `summary.md` from the delivery directory and report in three parts, each filled only
-from that file: what was analyzed, what was decided, what was delivered. Offer `methods.md` and
-the coverage report by name; do not paste them unless asked.
+Then run `stringency present` in the project and relay it whole: it is the results in the
+method's words. Add at most three sentences from `summary.md` on what was decided (holds,
+judgments, anything flagged), each filled only from that file, and name the saved files. Offer
+`summary.md`, `methods.md` and the coverage report by name; do not paste them unless asked.
 
 What the person receives, in the method's words:
 
@@ -225,9 +227,13 @@ verdict-shaped path. Say the paths in the pinned forms, then the switch paragrap
 the yes. On the yes, the operator skill's 10.2 applies: `init --mode open --from-delivery`
 beside the upstream, the yes recorded as that project's confirm verdict, a picked path filed
 with `ask --suggested`. Then per question: `ask`, one route (a tool whose use-when fits, else
-`exec` when the delivery holds the data, else cannot), `answer` citing every cell, and
-`present --answer` relayed whole with the label sentence first. You never write the label; the
-engine prints it from what ran.
+`exec` when the delivery or the pipeline's own inputs hold the data, else cannot), `answer`
+citing every cell, and `present --answer` relayed whole with the label sentence first. You never
+write the label; the engine prints it from what ran. The open project holds the pipeline's own
+inputs read-only as `upstream_<name>`, bound only when you name them with `--in`, for questions
+about what the pipeline removed or changed. A tool's controls run before its first use. When the
+person says they are done, ask the deliver sentence once and deliver what they name (`deliver
+--answer <id> ...` or `--answer all`).
 
 The toy method answers questions of the filtered table and of the comparison built on it.
 
@@ -245,23 +251,25 @@ The paths the method suggests, each said in the pinned form:
 - anything else about the filtered rows, such as counts or means per group: no tool ships for this, so code, labelled untested; needs object delivered.
 
 The pinned sentences, said as written (the label sentences and the qualifier line are printed by
-`stringency answer` and relayed verbatim; the engine fills `{tools}`, `{matched}`, `{total}` and
-the qualifier's six fields, each `none` when empty):
+`stringency answer` and relayed verbatim; the engine fills `{tools}`, `{data}`, `{why}`,
+`{matched}`, `{total}` and the qualifier's six fields, each `none` when empty):
 
 - paths forward, the opening: "Your project asked {the objective's question in the method's words}, and the delivery holds {the deliverables}. Paths I can take from here:"
 - path, a tool: "{what it answers}: {tool title}, a tool shipped with the method; it would be labelled trusted{; it needs {ask} from you}."
 - path, code: "{what it answers}: no tool ships for this, so I would write code; it would be labelled untested."
 - paths forward, the close: "You can pick one, ask something else, or stop here."
 - switch: "Your results are delivered. You can ask questions of them here. Nothing you ask is declared in advance and nothing here is a pre-registered result. Some questions I answer with tools shipped with this method, which are tested; some with code written in this session, which is not; the engine labels each answer trusted or untested from what ran, counts every run of the same tool on the same data, and nothing you ask changes the delivered files. Shall I open it for questions?"
-- before exec: "No tool shipped with this method answers that, so I am writing code for it; the engine will run it on the delivered data and label the answer untested."
-- cannot: "I cannot answer that from this delivery: {it holds {what} only | it needs {what}, which is not delivered | it is a judgment, not a result}. {What would answer it, or nothing.}"
-- label, trusted: "Label: trusted. Produced by {tools}, a tool shipped with the method, run by the engine on the delivered data. Numbers checked against the cited cells: {matched} of {total}. Everything else in this answer is the assistant's reading."
-- label, untested: "Label: untested. Produced by code written in this session, run and recorded by the engine on the delivered data; no test or control has checked it. Numbers checked against the cited cells: {matched} of {total}. Everything else in this answer is the assistant's reading."
+- before exec: "No tool shipped with this method answers that, so I am writing code for it; the engine will run it on {the delivered data | the pipeline's inputs | the delivered data and the pipeline's inputs} and label the answer untested."
+- cannot: "I cannot answer that from this delivery: {it holds {what} only | it needs {what}, which is neither delivered nor an input of the pipeline | it is a judgment, not a result}. {What would answer it, or nothing.}"
+- label, trusted: "Label: trusted. Produced by {tools}, a tool shipped with the method, run by the engine on {data}. Numbers checked against the cited cells: {matched} of {total}. Everything else in this answer is the assistant's reading."
+- label, untested: "Label: untested. Produced by code written in this session, run and recorded by the engine on {data}; no test or control has checked it. Numbers checked against the cited cells: {matched} of {total}. Everything else in this answer is the assistant's reading."
+- label, untested tool: "Label: untested. Produced by {tools}, a tool shipped with the method, run by the engine on {data}; {why}. Numbers checked against the cited cells: {matched} of {total}. Everything else in this answer is the assistant's reading."
 - qualifier: "flags accepted on the path: {flags} | parameters outside range: {ranges} | person-set parameters: {person} | upstream: {upstream} | controls: {controls} | untested inputs: {untested}"
 - what trusted means, when first relevant or asked: "Trusted means the engine ran a tool the method ships, in a verified environment, with a passing control on record, on the delivered data; the words around the numbers are still mine."
-- what untested means, when first relevant or asked: "Untested means the engine ran code I wrote in this session and recorded it, but nothing has checked that the code computes what it claims."
+- what untested means, when first relevant or asked: "Untested means the engine ran code I wrote in this session and recorded it, but nothing has checked that the code computes what it claims; or it ran a tool the method ships that missed a condition of trusted, which the label names."
 - who labels, when asked: "The engine labels from what ran; I cannot change a label, and I am not allowed to write one."
 - trusted only, when asked: "I can answer only with tools shipped with the method, if you prefer; then anything no tool answers I will say I cannot answer."
+- deliver, once, when the person is done: "Which of these answers should go with the delivered results? You can say all of them, or name them by number."
 
 ## Appendix: mechanics, compact
 
@@ -272,7 +280,7 @@ The `stringency-operator` skill is the authority on every line below; on conflic
   session id itself). `review --attest` is refused (exit 16) without a session reference. A
   `wait` only reads: never stop one with `pkill -f`.
 - Declare: `stringency plugins list --json` once; `declare --check <parent>/declarations
-  --method /home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc2 --pipeline toy-engine`; `init <project> --method /home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc2
+  --method /home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc3 --pipeline toy-engine`; `init <project> --method /home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc3
   --pipeline toy-engine --objective ... --design ... --inputs ... --drafted-by agent --brief
   <parent>/brief.md --owner ... --reviewer ...` exits 10 with the confirm hold.
 - Loop: `run --json`; 21 means a ticket (`next --json`, run `operator_line` once as printed,
@@ -285,7 +293,7 @@ The `stringency-operator` skill is the authority on every line below; on conflic
 - Show: `present` after delivery; `present --hold <id>` before a review; `board <dir>` for the
   state of every project under a directory when asked.
 - Open mode (section 8; operator skill section 10): `tools list --context --json` in the
-  delivered project; `init <upstream>-questions --method ... --mode open --from-delivery
+  delivered project; `init <upstream>-open --method ... --mode open --from-delivery
   <upstream>/deliver/<run>` exits 10, the yes recorded with `review --attest`; `ask "<words>"
   [--suggested] --json`; `call <tool> --question <id> [--in k=ref] [--set k=v --asked-by
   person --reason "..."] --json`; `exec <file> --out <name>=<type> --question <id> --reason

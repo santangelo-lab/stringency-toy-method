@@ -1,6 +1,7 @@
 # Routing test set for open mode on the toy (spec/method-skills.md section 5): questions a person
 # might ask after toy-engine delivers, with the route the operator should take: tool:<name>,
-# exec (code written in the session), cannot (a judgment, or not in the delivery), fork (a change
+# exec (code written in the session), cannot (a judgment, or in neither the delivery nor the
+# pipeline's inputs, which the open project holds read-only as upstream_<name>), fork (a change
 # to the pipeline run), explain (how the analysis was done, from the reports). Run by hand in a
 # session; results in toy-engine.questions.results.md.
 questions: 1
@@ -16,10 +17,12 @@ positive:
   - {text: "What is the mean value per unit?", expect: exec}
   - {text: "Which unit has the largest value?", expect: exec}
   - {text: "List the rows of group B", expect: exec}
+  - {text: "What were the raw values before filtering?", expect: exec}
+  - {text: "Which rows did the filter remove?", expect: exec}
 negative:
   - {text: "Is this result good enough to report?", expect: cannot}
   - {text: "Should we drop group C?", expect: cannot}
-  - {text: "What were the raw values before filtering?", expect: cannot}
+  - {text: "What was the room temperature when the values were measured?", expect: cannot}
   - {text: "Rerun the whole analysis keeping rows below 10", expect: fork}
   - {text: "How were the p-values corrected?", expect: explain}
   - {text: "Which steps ran and what was checked?", expect: explain}
