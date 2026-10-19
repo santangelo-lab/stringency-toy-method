@@ -6,7 +6,7 @@ license: MIT
 
 # Compare groups in a toy table
 
-Rendered by `render_skill.py` from `skills/toy-engine.analyze.yml` in the method repository at `/home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc4`; do
+Rendered by `render_skill.py` from `skills/toy-engine.analyze.yml` in the method repository at `/home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc5`; do
 not edit this file, edit the source and render again. Pipeline `toy-engine`, plugin
 `stringency-toy`, question `compare_groups`.
 
@@ -86,7 +86,7 @@ stop; that is a gap in the method, not something to approximate.
 
 Draft the three declaration files by the `stringency-declare` skill's rules (every value has a
 source: the manifest, the sample names, the person's sentences, or a plugin default) and check
-them with `declare --check` against method `/home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc4`, pipeline `toy-engine`. Exit 15
+them with `declare --check` against method `/home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc5`, pipeline `toy-engine`. Exit 15
 names what to fix; fix it only when the fix has a source, otherwise ask.
 
 When the check passes, show the echo-back in full, then say: "This is the engine's reading of
@@ -234,9 +234,11 @@ any caveat the data shows), the table or figure from `present --answer`, and one
 on how far to trust it that carries the engine's label word and reason. You never write the
 label and never upgrade it; the engine prints it from what ran. The open project holds the pipeline's own
 inputs read-only as `upstream_<name>`, bound only when you name them with `--in`, for questions
-about what the pipeline removed or changed. A tool's controls run before its first use. When the
-person says they are done, ask the deliver sentence once and deliver what they name (`deliver
---answer <id> ...` or `--answer all`).
+about what the pipeline removed or changed. A tool's controls run before its first use. Every
+admissible answer is in `deliver/<run>/` as it is filed, and `report.md` there leads with the
+findings; say the report sentence once when the first answer lands, mark findings on the
+person's word (`finding <answer id>`), and when they say they are done ask the findings sentence
+once, mark what they name, and hand over `report.md` as the artifact.
 
 The toy method answers questions of the filtered table and of the comparison built on it.
 
@@ -273,7 +275,8 @@ fields, each `none` when empty):
 - what untested means, when first relevant or asked: "Untested means the engine ran code I wrote in this session and recorded it, but nothing has checked that the code computes what it claims; or it ran a tool the method ships that missed a condition of trusted, which the label names."
 - who labels, when asked: "The engine labels from what ran; I cannot change a label, and I am not allowed to write one."
 - trusted only, when asked: "I can answer only with tools shipped with the method, if you prefer; then anything no tool answers I will say I cannot answer."
-- deliver, once, when the person is done: "Which of these answers should go with the delivered results? You can say all of them, or name them by number."
+- report, once, when the first answer lands: "Everything you ask goes into the report, on disk beside the results as it is answered; tell me whenever you want an answer marked as a finding, the ones the report leads with."
+- findings, once, when the person is done: "Which of these answers are findings, the ones the report should lead with? You can name them by number, say all, or none."
 
 ## Appendix: mechanics, compact
 
@@ -284,7 +287,7 @@ The `stringency-operator` skill is the authority on every line below; on conflic
   session id itself). `review --attest` is refused (exit 16) without a session reference. A
   `wait` only reads: never stop one with `pkill -f`.
 - Declare: `stringency plugins list --json` once; `declare --check <parent>/declarations
-  --method /home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc4 --pipeline toy-engine`; `init <project> --method /home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc4
+  --method /home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc5 --pipeline toy-engine`; `init <project> --method /home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc5
   --pipeline toy-engine --objective ... --design ... --inputs ... --drafted-by agent --brief
   <parent>/brief.md --owner ... --reviewer ...` exits 10 with the confirm hold.
 - Loop: `run --json`; 21 means a ticket (`next --json`, run `operator_line` once as printed,
@@ -302,8 +305,9 @@ The `stringency-operator` skill is the authority on every line below; on conflic
   [--suggested] --json`; `call <tool> --question <id> [--in k=ref] [--set k=v --asked-by
   person --reason "..."] --json`; `exec <file> --out <name>=<type> --question <id> --reason
   "..." --json`; `answer --question <id> --cite <artifact>[:row[:column]]... --text <file>
-  --json` (12 is a block: fix the text, never a number); `present --answer <id>`; `deliver
-  --answer <id>...`.
+  --json` (12 is a block: fix the text, never a number; the answer lands in `deliver/<run>/`);
+  `present --answer <id>`; `finding <answer id>... [--reason "..."] [--remove]`; `deliver`
+  rewrites the report.
 - Never: give a verdict; write under `prov/`; edit `method/`, `stringency.yml`, `objective.yml`,
   `design.yml`, or `inputs.yml`; compose any part of a container command; start `review --serve`;
   run `run --new` unless the person asks for another run; run analysis code outside `exec`;
