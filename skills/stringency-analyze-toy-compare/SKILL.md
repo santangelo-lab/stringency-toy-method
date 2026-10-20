@@ -6,7 +6,7 @@ license: MIT
 
 # Compare groups in a toy table
 
-Rendered by `render_skill.py` from `skills/toy-engine.analyze.yml` in the method repository at `/home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc5`; do
+Rendered by `render_skill.py` from `skills/toy-engine.analyze.yml` in the method repository at `/home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc6`; do
 not edit this file, edit the source and render again. Pipeline `toy-engine`, plugin
 `stringency-toy`, question `compare_groups`.
 
@@ -86,7 +86,7 @@ stop; that is a gap in the method, not something to approximate.
 
 Draft the three declaration files by the `stringency-declare` skill's rules (every value has a
 source: the manifest, the sample names, the person's sentences, or a plugin default) and check
-them with `declare --check` against method `/home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc5`, pipeline `toy-engine`. Exit 15
+them with `declare --check` against method `/home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc6`, pipeline `toy-engine`. Exit 15
 names what to fix; fix it only when the fix has a source, otherwise ask.
 
 When the check passes, show the echo-back in full, then say: "This is the engine's reading of
@@ -275,8 +275,8 @@ fields, each `none` when empty):
 - what untested means, when first relevant or asked: "Untested means the engine ran code I wrote in this session and recorded it, but nothing has checked that the code computes what it claims; or it ran a tool the method ships that missed a condition of trusted, which the label names."
 - who labels, when asked: "The engine labels from what ran; I cannot change a label, and I am not allowed to write one."
 - trusted only, when asked: "I can answer only with tools shipped with the method, if you prefer; then anything no tool answers I will say I cannot answer."
-- report, once, when the first answer lands: "Everything you ask goes into the report, on disk beside the results as it is answered; tell me whenever you want an answer marked as a finding, the ones the report leads with."
-- findings, once, when the person is done: "Which of these answers are findings, the ones the report should lead with? You can name them by number, say all, or none."
+- report, once, when the first answer lands: "Everything you ask goes into the report, on disk beside the results as it is answered, with its figures. Tell me whenever an answer is an important finding: it then goes into the report in full, at the top."
+- findings, once, when the person is done: "Which of these answers are important findings? Each one you name goes into the report in full, at the top, with its tables and figures; the others stay in the report in short. Name them by number, say all, or say none."
 
 ## Appendix: mechanics, compact
 
@@ -287,7 +287,7 @@ The `stringency-operator` skill is the authority on every line below; on conflic
   session id itself). `review --attest` is refused (exit 16) without a session reference. A
   `wait` only reads: never stop one with `pkill -f`.
 - Declare: `stringency plugins list --json` once; `declare --check <parent>/declarations
-  --method /home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc5 --pipeline toy-engine`; `init <project> --method /home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc5
+  --method /home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc6 --pipeline toy-engine`; `init <project> --method /home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc6
   --pipeline toy-engine --objective ... --design ... --inputs ... --drafted-by agent --brief
   <parent>/brief.md --owner ... --reviewer ...` exits 10 with the confirm hold.
 - Loop: `run --json`; 21 means a ticket (`next --json`, run `operator_line` once as printed,

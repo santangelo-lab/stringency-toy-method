@@ -4,7 +4,7 @@
 # The first analysis-skill instance, on the all-engine toy pipeline, before any real pipeline.
 pipeline: toy-engine
 name: toy-compare
-method: /home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc5
+method: /home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc6
 plugin: stringency-toy
 question: compare_groups
 title: Compare groups in a toy table
