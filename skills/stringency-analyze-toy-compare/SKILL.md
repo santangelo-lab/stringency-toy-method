@@ -6,7 +6,7 @@ license: MIT
 
 # Compare groups in a toy table
 
-Rendered by `render_skill.py` from `skills/toy-engine.analyze.yml` in the method repository at `/home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc6`; do
+Rendered by `render_skill.py` from `skills/toy-engine.analyze.yml` in the method repository at `/home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0`; do
 not edit this file, edit the source and render again. Pipeline `toy-engine`, plugin
 `stringency-toy`, question `compare_groups`.
 
@@ -86,8 +86,11 @@ stop; that is a gap in the method, not something to approximate.
 
 Draft the three declaration files by the `stringency-declare` skill's rules (every value has a
 source: the manifest, the sample names, the person's sentences, or a plugin default) and check
-them with `declare --check` against method `/home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc6`, pipeline `toy-engine`. Exit 15
-names what to fix; fix it only when the fix has a source, otherwise ask.
+them with `declare --check` against method `/home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0`, pipeline `toy-engine`. Exit 15
+names what to fix; fix it only when the fix has a source, otherwise ask. Before the check, ask
+what may leave this machine, as the declare skill's section 3a says, and pass the person's
+answer as `--egress-max` (and `--operator-model`) to `declare --check` and `init`; show the data
+egress report it prints beside the echo-back.
 
 When the check passes, show the echo-back in full, then say: "This is the engine's reading of
 your experiment. If it is right, say yes and the project is created; if anything is wrong, tell
@@ -95,7 +98,8 @@ me what." Wait. Do not run `init` before the yes.
 
 On yes, run `init --drafted-by agent --brief <parent>/brief.md`. The engine creates the project
 and stops once more at its confirm hold, which asks the person to stand behind the same reading
-under their name. Present it by section 5; the verdict and reason they give are recorded in the
+under their name, and at its egress hold, which asks whether what leaves the machine is
+acceptable. Present each by section 5, the confirm hold first; the verdict and reason they give are recorded in the
 project's trace.
 
 ## 4. Run and report progress
@@ -137,15 +141,26 @@ the packet file the message names) and says, in this order and nothing else:
 
 1. Where and what: "The analysis paused at {step title}. The engine is asking: {for a flag, 'is
    this acceptable: ' plus the predicate's reason verbatim; for a confirm, 'does this reading of
-   your experiment match'; for an item hold, 'which of these calls for {item} should stand'; for a
-   sign-off, 'which label {item} takes: {the packet's choices}'}."
+   your experiment match'; for an egress hold, 'is it acceptable that this leaves the machine';
+   for an item hold, 'which of these calls for {item} should stand'; for a sign-off, 'which label
+   {item} takes: {the packet's choices}'}."
 2. The record: the packet's reason and evidence lines verbatim under "What the engine recorded";
-   for item holds, each replicate's call, confidence, and rationale verbatim. No summary, no
-   reordering.
+   for item holds, each replicate's call, confidence, and rationale verbatim; for an egress hold,
+   the report's `ceiling:` and `assessed:` lines and every entry under "What leaves the machine"
+   verbatim. No summary, no reordering.
 3. The options: every entry of `verdicts`, as "{verdict}: {effect}", verbatim, in the engine's
    order. Nothing added.
 4. The ask: "Which do you choose, and why? I will not choose for you. Your decision and your reason
    are recorded under your name in the project's record."
+
+**The egress hold** (engine with backlog L1). `init` opens it beside the confirm hold, and `run`
+opens a new one when what the project sends changed (another judgment harness, another ceiling, a
+module that now reaches the network); the message ends with `report <path>`. Relay the confirm
+hold first, then the egress hold, each by steps 1 to 4. Do not say whether the class is high or
+low, do not propose another ceiling, harness or operator model, and do not offer a way past the
+hold; if the person asks what decides a class, read the entry's `set by` and `to` words verbatim.
+A `run` that exits 11 naming `prov.egress_exceeds_ceiling` is not a hold: report the message
+verbatim, name the report, and stop.
 
 Then wait. Accept only a reply containing one listed verdict word and a reason. "Ok", "fine", "go
 ahead" get: "To record this I need one of {verdicts} and your reason in your own words." No verdict
@@ -168,7 +183,8 @@ drift. Before the ask, when the method attaches tables to the predicate that fir
 `stringency present --hold <id>` and relay it, as the operator skill's section 7 says. The review
 page is a route only when it is available on this host; until then every hold is answered here
 and recorded as relayed. At every hold, without being asked, start the `wait_command` the held
-payload names (`stringency wait --hold <id> --timeout 86400 --json`) in the background, so an
+payload names (`stringency wait --hold <id> --timeout 86400 --json`) in the background (on a
+compute host, as a job, not through `call_command`, whose commands end after 60 seconds), so an
 answer given at a terminal or on a console reaches you; when it returns, call `run` again. When a
 console is configured (the person says so, the held payload's `review_page` is set, or `page_url`
 is set in `~/.config/stringency/notify.yml`), the operator skill's console mode applies instead: one
@@ -287,7 +303,7 @@ The `stringency-operator` skill is the authority on every line below; on conflic
   session id itself). `review --attest` is refused (exit 16) without a session reference. A
   `wait` only reads: never stop one with `pkill -f`.
 - Declare: `stringency plugins list --json` once; `declare --check <parent>/declarations
-  --method /home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc6 --pipeline toy-engine`; `init <project> --method /home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0-rc6
+  --method /home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0 --pipeline toy-engine`; `init <project> --method /home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0
   --pipeline toy-engine --objective ... --design ... --inputs ... --drafted-by agent --brief
   <parent>/brief.md --owner ... --reviewer ...` exits 10 with the confirm hold.
 - Loop: `run --json`; 21 means a ticket (`next --json`, run `operator_line` once as printed,
