@@ -6,7 +6,7 @@ license: MIT
 
 # Compare groups in a toy table
 
-Rendered by `render_skill.py` from `skills/toy-engine.analyze.yml` in the method repository at `/home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0`; do
+Rendered by `render_skill.py` from `skills/toy-engine.analyze.yml` in the method repository at `https://github.com/santangelo-lab/stringency-toy-method@v0.3.1`; do
 not edit this file, edit the source and render again. Pipeline `toy-engine`, plugin
 `stringency-toy`, question `compare_groups`.
 
@@ -86,7 +86,7 @@ stop; that is a gap in the method, not something to approximate.
 
 Draft the three declaration files by the `stringency-declare` skill's rules (every value has a
 source: the manifest, the sample names, the person's sentences, or a plugin default) and check
-them with `declare --check` against method `/home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0`, pipeline `toy-engine`. Exit 15
+them with `declare --check` against method `https://github.com/santangelo-lab/stringency-toy-method@v0.3.1`, pipeline `toy-engine`. Exit 15
 names what to fix; fix it only when the fix has a source, otherwise ask. Before the check, ask
 what may leave this machine, as the declare skill's section 3a says, and pass the person's
 answer as `--egress-max` (and `--operator-model`) to `declare --check` and `init`; show the data
@@ -125,13 +125,18 @@ estimate time, do not describe a step as done, skipped, or satisfied unless `com
 
 Some steps take a parameter nobody can set before the run has produced the evidence for it: the
 step's default is `unset` or a sign-off is required, and the operator proposes the value. Run
-`stringency run --until <the step before>` so the evidence exists, read the evidence the method
-names (`present` shows it; never compute from it), then `stringency propose <step> --set
-<parameter>=<value> --reason "<why, citing the evidence by table and row>"`. The proposal opens a
-hold the person answers by the hold protocol: your reason is what they read, so it must be one
-they could check against the tables. You never proceed on your own proposal, never propose a
-value the evidence does not name, and never change a parameter nobody asked about. Then `run`
-again. This text is section 9 of the `stringency-operator` skill; the two must not drift.
+`stringency run --until <the step before>` so the evidence exists, render the evidence the method
+names through `present` and read it there before you propose (the hold's provenance line says
+whether you did; never compute from it), then `stringency propose <step> --set
+<parameter>=<value> --cite <step>/<output>[:<row>[:<column>]] ... --considered <v1,v2,...>
+--reason "<why, in words the cited cells support>"` (engine 0.2.29). Cite every cell your reason
+rests on, from the evidence the pipeline's `decision:` block names for that parameter, and list
+the candidates you weighed; the engine resolves each citation to its cell, prints them at the
+hold, and opens a hold of its own when a numeral in your reason matches no cited cell or when a
+decision point's evidence is cited nowhere. The proposal opens a hold the person answers by the
+hold protocol: your reason is what they read, so it must be one they could check against the
+tables. You never proceed on your own proposal, never propose a value the evidence does not
+name, and never change a parameter nobody asked about. Then `run` again. This text is section 9 of the `stringency-operator` skill; the two must not drift.
 
 
 ## 5. Holds
@@ -139,15 +144,17 @@ again. This text is section 9 of the `stringency-operator` skill; the two must n
 When the engine stops with a hold, the operator reads `stringency review --hold <id> --json` (or
 the packet file the message names) and says, in this order and nothing else:
 
-1. Where and what: "The analysis paused at {step title}. The engine is asking: {for a flag, 'is
-   this acceptable: ' plus the predicate's reason verbatim; for a confirm, 'does this reading of
-   your experiment match'; for an egress hold, 'is it acceptable that this leaves the machine';
+1. Where and what: "The analysis paused at {step title}. The engine is asking: {for a flag, the
+   packet's `question` verbatim ('is this acceptable: ...', engine 0.2.35; before it, 'is this
+   acceptable: ' plus the predicate's reason verbatim); for a confirm, 'does this reading of your
+   experiment match' (in open mode, 'is this the delivery you meant to open for questions'); for
+   an egress hold, 'is it acceptable that this leaves the machine';
    for an item hold, 'which of these calls for {item} should stand'; for a sign-off, 'which label
    {item} takes: {the packet's choices}'}."
 2. The record: the packet's reason and evidence lines verbatim under "What the engine recorded";
-   for item holds, each replicate's call, confidence, and rationale verbatim; for an egress hold,
-   the report's `ceiling:` and `assessed:` lines and every entry under "What leaves the machine"
-   verbatim. No summary, no reordering.
+   for a flag, the packet's `rule` lines first, verbatim; for item holds, each replicate's call, confidence, and rationale verbatim; for an egress hold,
+   the report's `ceiling:` and `assessed:` lines, every entry under "What leaves the machine" and
+   the report's "not assessed" line, all verbatim. No summary, no reordering.
 3. The options: every entry of `verdicts`, as "{verdict}: {effect}", verbatim, in the engine's
    order. Nothing added.
 4. The ask: "Which do you choose, and why? I will not choose for you. Your decision and your reason
@@ -167,10 +174,13 @@ ahead" get: "To record this I need one of {verdicts} and your reason in your own
 is inferred from tone. Item holds: the person may name a label instead of a verdict; record it
 with `--choose {label}` (the engine records accept when a replicate called it, else override), and
 on a sign-off a reason is required. Otherwise accept needs the replicate number the person names
-and override passes the person's label through unchanged.
+and override passes the person's label through unchanged. A flag lists `override` only when its
+packet names a correction (`judg.confidence_consistent`: the confidence the calls take); then
+override passes the person's value unchanged as `--correction <field>=<value>`.
 
 Then one command: `stringency review --verdict {v} --hold {id} --reason "{their words}"
-[--replicate n | --correction '{"label": ...}'] --attest`, or `stringency review --choose {label}
+[--replicate n | --correction '{"label": ...}' | --correction <field>=<value>] --attest`, or
+`stringency review --choose {label}
 --hold {id} --reason "{their words}" --attest`, with `STRINGENCY_SESSION_REF` set.
 Report the engine's reply in one sentence. On exit 16 (strict profile refuses relayed review),
 name the two routes the engine allows: the review page, or `stringency review --hold {id}` at a
@@ -242,19 +252,25 @@ suggested paths. Tools before code; never a path the delivery lacks the data for
 verdict-shaped path. Say the paths in the pinned forms, then the switch paragraph, and wait for
 the yes. On the yes, the operator skill's 10.2 applies: `init --mode open --from-delivery`
 beside the upstream, the yes recorded as that project's confirm verdict, a picked path filed
-with `ask --suggested`. Then per question: `ask`, one route (a tool whose use-when fits, else
-`exec` when the delivery or the pipeline's own inputs hold the data, else cannot), `answer`
+with `ask --suggested`. Then per question: `ask --wants` (the quantity that would answer it),
+the fit (a tool fits only when what its output is, its gives, is the wants; a near tool that
+does not fit gets the near-miss sentence, never a call: an untested answer to the question beats
+a trusted answer to another), the fit sentence before every `call --gives` or `exec --gives`,
+one route (a tool that fits, else `exec` when the delivery or the pipeline's own inputs hold the
+data, else cannot), `answer`
 citing every cell, then your own reply to the person, never the engine output relayed: the
 answer you filed, written to explain the result (what it shows, the few numbers that carry it,
-any caveat the data shows), the table or figure from `present --answer`, and one plain sentence
-on how far to trust it that carries the engine's label word and reason. You never write the
+any caveat the data shows), the block `present --answer <id> --chat` prints pasted under it
+(the cited rows, the figures, the label sentence: a number said is a row shown), and one plain
+sentence on how far to trust it that carries the engine's label word and reason. You never write the
 label and never upgrade it; the engine prints it from what ran. The open project holds the pipeline's own
 inputs read-only as `upstream_<name>`, bound only when you name them with `--in`, for questions
 about what the pipeline removed or changed. A tool's controls run before its first use. Every
 admissible answer is in `deliver/<run>/` as it is filed, and `report.md` there leads with the
 findings; say the report sentence once when the first answer lands, mark findings on the
 person's word (`finding <answer id>`), and when they say they are done ask the findings sentence
-once, mark what they name, and hand over `report.md` as the artifact.
+once, mark what they name, set the order, headings and paragraph they give (`finding --order`,
+`--under`, `deliver --story`), and hand over `report.md` as the artifact.
 
 The toy method answers questions of the filtered table and of the comparison built on it.
 
@@ -273,37 +289,42 @@ The paths the method suggests, each said in the pinned form:
 
 The pinned sentences, said as written except the label sentences and the qualifier line, which
 are the engine's record, printed by `stringency answer` and said in plain words in your reply
-(the engine fills `{tools}`, `{data}`, `{why}`, `{matched}`, `{total}` and the qualifier's six
-fields, each `none` when empty):
+(the engine fills `{tools}`, `{data}`, `{tables}`, `{why}`, `{matched}`, `{total}` and the qualifier's seven
+fields, each `none` when empty; `{numerals}` lists the numerals the engine did not check because
+they are not measurements: a design level, a row's key, a parameter value, a number from the
+question, a year, a count of animals, punches or replicates):
 
 - paths forward, the opening: "Your project asked {the objective's question in the method's words}, and the delivery holds {the deliverables}. Paths I can take from here:"
 - path, a tool: "{what it answers}: {tool title}, a tool shipped with the method; it would be labelled trusted{; it needs {ask} from you}."
 - path, code: "{what it answers}: no tool ships for this, so I would write code; it would be labelled untested."
 - paths forward, the close: "You can pick one, ask something else, or stop here."
 - switch: "Your results are delivered. You can ask questions of them here. Nothing you ask is declared in advance and nothing here is a pre-registered result. Some questions I answer with tools shipped with this method, which are tested; some with code written in this session, which is not; the engine labels each answer trusted or untested from what ran, counts every run of the same tool on the same data, and nothing you ask changes the delivered files. Shall I open it for questions?"
+- fit, before every call or exec: "The question wants {the wants}; {tool title | my code} gives {the gives}."
+- near miss: "The nearest tool is {tool title}; it gives {its gives}, which is not {the wants}. I can run {tool title} and read {its gives} as a proxy, saying what it misses; write code for {the wants}, labelled untested; or stop."
 - before exec: "No tool shipped with this method answers that, so I am writing code for it; the engine will run it on {the delivered data | the pipeline's inputs | the delivered data and the pipeline's inputs} and label the answer untested."
+- before drawing: "No tool draws it that way, so I am writing code that draws the numbers of {the tables}; the engine checks every number the figure draws against them, and labels it trusted data, drawn by session code, only if all of them match."
 - cannot: "I cannot answer that from this delivery: {it holds {what} only | it needs {what}, which is neither delivered nor an input of the pipeline | it is a judgment, not a result}. {What would answer it, or nothing.}"
 - label, trusted: "Label: trusted. Produced by {tools}, a tool shipped with the method, run by the engine on {data}. Numbers checked against the cited cells: {matched} of {total}. Everything else in this answer is the assistant's reading."
-- label, untested: "Label: untested. Produced by code written in this session, run and recorded by the engine on {data}; no test or control has checked it. Numbers checked against the cited cells: {matched} of {total}. Everything else in this answer is the assistant's reading."
+- label, untested: "Label: untested. Produced by code written for this question, run and recorded by the engine on {data}; no test or control has checked it. Numbers checked against the cited cells: {matched} of {total}. Everything else in this answer is the assistant's reading."
+- label, drawn: "Label: trusted data, drawn by session code. The numbers are {tables}, trusted; the drawing is code written in this session, which nothing has checked. Numbers checked against the cited cells: {matched} of {total}. Everything else in this answer is the assistant's reading."
 - label, untested tool: "Label: untested. Produced by {tools}, a tool shipped with the method, run by the engine on {data}; {why}. Numbers checked against the cited cells: {matched} of {total}. Everything else in this answer is the assistant's reading."
-- qualifier: "flags accepted on the path: {flags} | parameters outside range: {ranges} | person-set parameters: {person} | upstream: {upstream} | controls: {controls} | untested inputs: {untested}"
+- qualifier: "flags accepted on the path: {flags} | parameters outside range: {ranges} | person-set parameters: {person} | upstream: {upstream} | controls: {controls} | untested inputs: {untested} | numerals not checked: {numerals}"
 - what trusted means, when first relevant or asked: "Trusted means the engine ran a tool the method ships, in a verified environment, with a passing control on record, on the delivered data; the words around the numbers are still mine."
 - what untested means, when first relevant or asked: "Untested means the engine ran code I wrote in this session and recorded it, but nothing has checked that the code computes what it claims; or it ran a tool the method ships that missed a condition of trusted, which the label names."
 - who labels, when asked: "The engine labels from what ran; I cannot change a label, and I am not allowed to write one."
 - trusted only, when asked: "I can answer only with tools shipped with the method, if you prefer; then anything no tool answers I will say I cannot answer."
 - report, once, when the first answer lands: "Everything you ask goes into the report, on disk beside the results as it is answered, with its figures. Tell me whenever an answer is an important finding: it then goes into the report in full, at the top."
-- findings, once, when the person is done: "Which of these answers are important findings? Each one you name goes into the report in full, at the top, with its tables and figures; the others stay in the report in short. Name them by number, say all, or say none."
+- findings, once, when the person is done: "Which of these answers are important findings? Each one you name goes into the report in full, at the top, with its tables and figures; the others stay in the report in short. Name them by number, say all, or say none. If you want them in an order of your own, under headings in your words, or opened by a paragraph you write, tell me and the report will follow it."
 
 ## Appendix: mechanics, compact
 
 The `stringency-operator` skill is the authority on every line below; on conflict it wins.
 
 - Engine: `stringency` on the compute host, `bin` directory on PATH via a login shell; identity
-  variables exported in every command string (in Claude Code the engine reads the version and
-  session id itself). `review --attest` is refused (exit 16) without a session reference. A
+  variables exported in every command string. `review --attest` is refused (exit 16) without a session reference. A
   `wait` only reads: never stop one with `pkill -f`.
 - Declare: `stringency plugins list --json` once; `declare --check <parent>/declarations
-  --method /home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0 --pipeline toy-engine`; `init <project> --method /home/jrrose5/mytools/stringency/stringency-toy-method@v0.2.0
+  --method https://github.com/santangelo-lab/stringency-toy-method@v0.3.1 --pipeline toy-engine`; `init <project> --method https://github.com/santangelo-lab/stringency-toy-method@v0.3.1
   --pipeline toy-engine --objective ... --design ... --inputs ... --drafted-by agent --brief
   <parent>/brief.md --owner ... --reviewer ...` exits 10 with the confirm hold.
 - Loop: `run --json`; 21 means a ticket (`next --json`, run `operator_line` once as printed,
@@ -320,10 +341,11 @@ The `stringency-operator` skill is the authority on every line below; on conflic
   <upstream>/deliver/<run>` exits 10, the yes recorded with `review --attest`; `ask "<words>"
   [--suggested] --json`; `call <tool> --question <id> [--in k=ref] [--set k=v --asked-by
   person --reason "..."] --json`; `exec <file> --out <name>=<type> --question <id> --reason
-  "..." --json`; `answer --question <id> --cite <artifact>[:row[:column]]... --text <file>
-  --json` (12 is a block: fix the text, never a number; the answer lands in `deliver/<run>/`);
-  `present --answer <id>`; `finding <answer id>... [--reason "..."] [--remove]`; `deliver`
-  rewrites the report.
+  "..." --json`; `answer --question <id> --cite <artifact>[:row[:column]]... [--figure
+  <artifact>]... --text <file> --json` (12 is a block: fix the text, never a number; the answer
+  lands in `deliver/<run>/`); `present --answer <id> --chat`; `finding <answer id>... [--reason
+  "..."] [--order <n>] [--under "<heading>"] [--remove]`; `deliver [--story <file>]` rewrites
+  the report.
 - Never: give a verdict; write under `prov/`; edit `method/`, `stringency.yml`, `objective.yml`,
   `design.yml`, or `inputs.yml`; compose any part of a container command; start `review --serve`;
   run `run --new` unless the person asks for another run; run analysis code outside `exec`;
